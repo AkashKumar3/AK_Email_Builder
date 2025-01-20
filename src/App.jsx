@@ -1,26 +1,31 @@
-import { useState, useEffect } from 'react';
-import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
-import { ChromePicker } from 'react-color';
-import axios from 'axios';
-import './App.css';
+import { useState, useEffect } from "react";
+import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
+import { ChromePicker } from "react-color";
+import axios from "axios";
+import "./App.css";
 
 function App() {
+  const isValidImageUrl = (url) => {
+    const imageRegex = /\.(jpeg|jpg|gif|png|webp)$/i;
+    return imageRegex.test(url);
+  };
+  
   const [template, setTemplate] = useState({
-    title: '',
-    content: '',
-    imageUrl: '',
+    title: "",
+    content: "",
+    imageUrl: "",
     styles: {
-      titleColor: '#000000',
-      contentColor: '#000000',
-      fontSize: '16px',
-      alignment: 'left'
-    }
+      titleColor: "#000000",
+      contentColor: "#000000",
+      fontSize: "16px",
+      alignment: "left",
+    },
   });
 
   const [templates, setTemplates] = useState([]);
   const [showColorPicker, setShowColorPicker] = useState(false);
-  const [sections, setSections] = useState(['title', 'image', 'content']);
-  const [selectedTemplateId, setSelectedTemplateId] = useState('');
+  const [sections, setSections] = useState(["title", "image", "content"]);
+  const [selectedTemplateId, setSelectedTemplateId] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
@@ -29,10 +34,12 @@ function App() {
 
   const fetchTemplates = async () => {
     try {
-      const response = await axios.get('https://ak-email-builder-backend.onrender.com/api/templates');
+      const response = await axios.get(
+        "https://ak-email-builder-backend.onrender.com/api/templates"
+      );
       setTemplates(response.data);
     } catch (error) {
-      console.error('Error fetching templates:', error);
+      console.error("Error fetching templates:", error);
     }
   };
 
@@ -43,33 +50,34 @@ function App() {
     if (templateId) {
       setIsLoading(true);
       try {
-        const response = await axios.get(`https://ak-email-builder-backend.onrender.com/api/templates/${templateId}`);
+        const response = await axios.get(
+          `https://ak-email-builder-backend.onrender.com/api/templates/${templateId}`
+        );
         setTemplate(response.data);
       } catch (error) {
-        console.error('Error loading template:', error);
+        console.error("Error loading template:", error);
       }
       setIsLoading(false);
     } else {
- 
       setTemplate({
-        title: '',
-        content: '',
-        imageUrl: '',
+        title: "",
+        content: "",
+        imageUrl: "",
         styles: {
-          titleColor: '#000000',
-          contentColor: '#000000',
-          fontSize: '16px',
-          alignment: 'left'
-        }
+          titleColor: "#000000",
+          contentColor: "#000000",
+          fontSize: "16px",
+          alignment: "left",
+        },
       });
     }
   };
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setTemplate(prev => ({
+    setTemplate((prev) => ({
       ...prev,
-      [name]: value
+      [name]: value,
     }));
   };
 
@@ -78,29 +86,32 @@ function App() {
     if (!file) return;
 
     const formData = new FormData();
-    formData.append('image', file);
+    formData.append("image", file);
 
     try {
       setIsLoading(true);
-      const response = await axios.post('https://ak-email-builder-backend.onrender.com/api/uploadImage', formData);
-      setTemplate(prev => ({
+      const response = await axios.post(
+        "https://ak-email-builder-backend.onrender.com/api/uploadImage",
+        formData
+      );
+      setTemplate((prev) => ({
         ...prev,
-        imageUrl: response.data.imageUrl
+        imageUrl: response.data.imageUrl,
       }));
     } catch (error) {
-      console.error('Error uploading image:', error);
+      console.error("Error uploading image:", error);
     } finally {
       setIsLoading(false);
     }
   };
 
   const handleColorChange = (color) => {
-    setTemplate(prev => ({
+    setTemplate((prev) => ({
       ...prev,
       styles: {
         ...prev.styles,
-        titleColor: color.hex
-      }
+        titleColor: color.hex,
+      },
     }));
   };
 
@@ -118,14 +129,20 @@ function App() {
     try {
       setIsLoading(true);
       if (selectedTemplateId) {
-        await axios.put(`https://ak-email-builder-backend.onrender.com/api/templates/${selectedTemplateId}`, template);
+        await axios.put(
+          `https://ak-email-builder-backend.onrender.com/api/templates/${selectedTemplateId}`,
+          template
+        );
       } else {
-        await axios.post('https://ak-email-builder-backend.onrender.com/api/uploadEmailConfig', template);
+        await axios.post(
+          "https://ak-email-builder-backend.onrender.com/api/uploadEmailConfig",
+          template
+        );
       }
       await fetchTemplates();
-      alert('Template saved successfully!');
+      alert("Template saved successfully!");
     } catch (error) {
-      console.error('Error saving template:', error);
+      console.error("Error saving template:", error);
     } finally {
       setIsLoading(false);
     }
@@ -134,18 +151,21 @@ function App() {
   const downloadTemplate = async () => {
     try {
       setIsLoading(true);
-      const response = await axios.post('https://ak-email-builder-backend.onrender.com/api/renderAndDownloadTemplate', {
-        template
-      });
-      
-      const blob = new Blob([response.data], { type: 'text/html' });
+      const response = await axios.post(
+        "https://ak-email-builder-backend.onrender.com/api/renderAndDownloadTemplate",
+        {
+          template,
+        }
+      );
+
+      const blob = new Blob([response.data], { type: "text/html" });
       const url = window.URL.createObjectURL(blob);
-      const a = document.createElement('a');
+      const a = document.createElement("a");
       a.href = url;
-      a.download = 'email-template.html';
+      a.download = "email-template.html";
       a.click();
     } catch (error) {
-      console.error('Error downloading template:', error);
+      console.error("Error downloading template:", error);
     } finally {
       setIsLoading(false);
     }
@@ -156,14 +176,16 @@ function App() {
       <div className="app-header">
         <h1>AK Email Builder</h1>
         <div className="template-selector">
-          <select 
-            value={selectedTemplateId} 
+          <select
+            value={selectedTemplateId}
             onChange={handleTemplateSelect}
             className="template-select"
           >
             <option value="">Create New Template</option>
-            {templates.map(t => (
-              <option key={t._id} value={t._id}>{t.title || 'Untitled Template'}</option>
+            {templates.map((t) => (
+              <option key={t._id} value={t._id}>
+                {t.title || "Untitled Template"}
+              </option>
             ))}
           </select>
         </div>
@@ -174,13 +196,21 @@ function App() {
           <div className="panel-header">
             <h2>Editor</h2>
           </div>
-          
+
           <DragDropContext onDragEnd={handleDragEnd}>
             <Droppable droppableId="sections">
               {(provided) => (
-                <div {...provided.droppableProps} ref={provided.innerRef} className="sections-container">
+                <div
+                  {...provided.droppableProps}
+                  ref={provided.innerRef}
+                  className="sections-container"
+                >
                   {sections.map((section, index) => (
-                    <Draggable key={section} draggableId={section} index={index}>
+                    <Draggable
+                      key={section}
+                      draggableId={section}
+                      index={index}
+                    >
                       {(provided) => (
                         <div
                           ref={provided.innerRef}
@@ -189,11 +219,14 @@ function App() {
                           className="section"
                         >
                           <div className="section-header">
-                            <span className="section-title">{section.charAt(0).toUpperCase() + section.slice(1)}</span>
+                            <span className="section-title">
+                              {section.charAt(0).toUpperCase() +
+                                section.slice(1)}
+                            </span>
                             <span className="drag-handle">☰</span>
                           </div>
 
-                          {section === 'title' && (
+                          {section === "title" && (
                             <div className="input-group">
                               <input
                                 type="text"
@@ -203,16 +236,23 @@ function App() {
                                 placeholder="Enter title..."
                                 className="fancy-input"
                               />
-                              <button 
-                                onClick={() => setShowColorPicker(!showColorPicker)}
+                              <button
+                                onClick={() =>
+                                  setShowColorPicker(!showColorPicker)
+                                }
                                 className="color-button"
-                                style={{ backgroundColor: template.styles.titleColor }}
+                                style={{
+                                  backgroundColor: template.styles.titleColor,
+                                }}
                               >
                                 Color
                               </button>
                               {showColorPicker && (
                                 <div className="color-picker-popover">
-                                  <div className="color-picker-cover" onClick={() => setShowColorPicker(false)} />
+                                  <div
+                                    className="color-picker-cover"
+                                    onClick={() => setShowColorPicker(false)}
+                                  />
                                   <ChromePicker
                                     color={template.styles.titleColor}
                                     onChange={handleColorChange}
@@ -222,29 +262,55 @@ function App() {
                             </div>
                           )}
 
-                          {section === 'image' && (
+                          {section === "image" && (
                             <div className="input-group">
                               <div className="image-upload-container">
-                                <input
-                                  type="file"
-                                  onChange={handleImageUpload}
-                                  accept="image/*"
-                                  className="file-input"
-                                  id="image-upload"
-                                />
-                                <label htmlFor="image-upload" className="file-input-label">
-                                  {template.imageUrl ? 'Change Image' : 'Upload Image'}
+                                <label
+                                  htmlFor="image-url"
+                                  className="image-url-label"
+                                >
+                                  Image URL
                                 </label>
+                                <input
+                                  type="text"
+                                  id="image-url"
+                                  value={template.imageUrl}
+                                  onChange={(e) =>
+                                    setTemplate((prev) => ({
+                                      ...prev,
+                                      imageUrl: e.target.value,
+                                    }))
+                                  }
+                                  placeholder="Enter image URL"
+                                  className="image-url-input"
+                                />
                                 {template.imageUrl && (
                                   <div className="image-preview">
-                                    <img src={template.imageUrl} alt="Preview" />
+                                    <img
+                                      src={template.imageUrl}
+                                      alt="Preview"
+                                      style={{ maxWidth: "100%" }}
+                                    />
                                   </div>
                                 )}
+                                {/* Optional Error or Success Message */}
+                                {template.imageUrl &&
+                                  !isValidImageUrl(template.imageUrl) && (
+                                    <div className="error-message">
+                                      Invalid image URL. Please try again.
+                                    </div>
+                                  )}
+                                {template.imageUrl &&
+                                  isValidImageUrl(template.imageUrl) && (
+                                    <div className="success-message">
+                                      Image URL looks good!
+                                    </div>
+                                  )}
                               </div>
                             </div>
                           )}
 
-                          {section === 'content' && (
+                          {section === "content" && (
                             <div className="input-group">
                               <textarea
                                 name="content"
@@ -269,18 +335,22 @@ function App() {
             <div className="control-group">
               <label>Text Alignment</label>
               <div className="alignment-buttons">
-                {['left', 'center', 'right'].map(align => (
+                {["left", "center", "right"].map((align) => (
                   <button
                     key={align}
-                    className={`align-button ${template.styles.alignment === align ? 'active' : ''}`}
-                    onClick={() => setTemplate(prev => ({
-                      ...prev,
-                      styles: { ...prev.styles, alignment: align }
-                    }))}
+                    className={`align-button ${
+                      template.styles.alignment === align ? "active" : ""
+                    }`}
+                    onClick={() =>
+                      setTemplate((prev) => ({
+                        ...prev,
+                        styles: { ...prev.styles, alignment: align },
+                      }))
+                    }
                   >
-                    {align === 'left' && '⫷'}
-                    {align === 'center' && '☰'}
-                    {align === 'right' && '⫸'}
+                    {align === "left" && "⫷"}
+                    {align === "center" && "☰"}
+                    {align === "right" && "⫸"}
                   </button>
                 ))}
               </div>
@@ -290,10 +360,12 @@ function App() {
               <label>Font Size</label>
               <select
                 value={template.styles.fontSize}
-                onChange={(e) => setTemplate(prev => ({
-                  ...prev,
-                  styles: { ...prev.styles, fontSize: e.target.value }
-                }))}
+                onChange={(e) =>
+                  setTemplate((prev) => ({
+                    ...prev,
+                    styles: { ...prev.styles, fontSize: e.target.value },
+                  }))
+                }
                 className="fancy-select"
               >
                 <option value="12px">Small</option>
@@ -304,11 +376,23 @@ function App() {
           </div>
 
           <div className="button-group">
-            <button onClick={saveTemplate} className="primary-button" disabled={isLoading}>
-              {isLoading ? 'Saving...' : (selectedTemplateId ? 'Update Template' : 'Save Template')}
+            <button
+              onClick={saveTemplate}
+              className="primary-button"
+              disabled={isLoading}
+            >
+              {isLoading
+                ? "Saving..."
+                : selectedTemplateId
+                ? "Update Template"
+                : "Save Template"}
             </button>
-            <button onClick={downloadTemplate} className="secondary-button" disabled={isLoading}>
-              {isLoading ? 'Generating...' : 'Download HTML'}
+            <button
+              onClick={downloadTemplate}
+              className="secondary-button"
+              disabled={isLoading}
+            >
+              {isLoading ? "Generating..." : "Download HTML"}
             </button>
           </div>
         </div>
@@ -317,13 +401,22 @@ function App() {
           <div className="panel-header">
             <h2>Preview</h2>
           </div>
-          <div className="preview-container" style={{ textAlign: template.styles.alignment }}>
-            <h1 style={{ color: template.styles.titleColor }}>{template.title || 'Your Title Here'}</h1>
+          <div
+            className="preview-container"
+            style={{ textAlign: template.styles.alignment }}
+          >
+            <h1 style={{ color: template.styles.titleColor }}>
+              {template.title || "Your Title Here"}
+            </h1>
             {template.imageUrl && (
-              <img src={template.imageUrl} alt="Preview" style={{ maxWidth: '100%' }} />
+              <img
+                src={template.imageUrl}
+                alt="Preview"
+                style={{ maxWidth: "100%" }}
+              />
             )}
             <div style={{ fontSize: template.styles.fontSize }}>
-              {template.content || 'Your content will appear here...'}
+              {template.content || "Your content will appear here..."}
             </div>
           </div>
         </div>
