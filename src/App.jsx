@@ -29,7 +29,7 @@ function App() {
 
   const fetchTemplates = async () => {
     try {
-      const response = await axios.get('http://localhost:3000/api/templates');
+      const response = await axios.get('https://ak-email-builder-backend.onrender.com/api/templates');
       setTemplates(response.data);
     } catch (error) {
       console.error('Error fetching templates:', error);
@@ -43,7 +43,7 @@ function App() {
     if (templateId) {
       setIsLoading(true);
       try {
-        const response = await axios.get(`http://localhost:3000/api/templates/${templateId}`);
+        const response = await axios.get(`https://ak-email-builder-backend.onrender.com/api/templates/${templateId}`);
         setTemplate(response.data);
       } catch (error) {
         console.error('Error loading template:', error);
@@ -82,7 +82,7 @@ function App() {
 
     try {
       setIsLoading(true);
-      const response = await axios.post('http://localhost:3000/api/uploadImage', formData);
+      const response = await axios.post('https://ak-email-builder-backend.onrender.com/api/uploadImage', formData);
       setTemplate(prev => ({
         ...prev,
         imageUrl: response.data.imageUrl
@@ -118,9 +118,9 @@ function App() {
     try {
       setIsLoading(true);
       if (selectedTemplateId) {
-        await axios.put(`http://localhost:3000/api/templates/${selectedTemplateId}`, template);
+        await axios.put(`https://ak-email-builder-backend.onrender.com/api/templates/${selectedTemplateId}`, template);
       } else {
-        await axios.post('http://localhost:3000/api/uploadEmailConfig', template);
+        await axios.post('https://ak-email-builder-backend.onrender.com/api/uploadEmailConfig', template);
       }
       await fetchTemplates();
       alert('Template saved successfully!');
@@ -134,7 +134,7 @@ function App() {
   const downloadTemplate = async () => {
     try {
       setIsLoading(true);
-      const response = await axios.post('http://localhost:3000/api/renderAndDownloadTemplate', {
+      const response = await axios.post('https://ak-email-builder-backend.onrender.com/api/renderAndDownloadTemplate', {
         template
       });
       
