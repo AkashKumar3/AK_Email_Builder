@@ -50,7 +50,7 @@ function App() {
       }
       setIsLoading(false);
     } else {
-      // Reset to empty template
+ 
       setTemplate({
         title: '',
         content: '',
@@ -154,7 +154,7 @@ function App() {
   return (
     <div className="app-wrapper">
       <div className="app-header">
-        <h1>Email Builder</h1>
+        <h1>AK Email Builder</h1>
         <div className="template-selector">
           <select 
             value={selectedTemplateId} 
